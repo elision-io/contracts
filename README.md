@@ -1,8 +1,4 @@
-near-blank-project
-==================
-
-This app was initialized with [create-near-app]
-
+# Elision - Near Contracts
 
 Quick Start
 ===========
@@ -15,22 +11,6 @@ To run this project locally:
    full list of `scripts` you can run with `yarn`)
 
 Now you'll have a local development environment backed by the NEAR TestNet!
-
-Go ahead and play with the app and the code. As you make code changes, the app will automatically reload.
-
-
-Exploring The Code
-==================
-
-1. The "backend" code lives in the `/contract` folder. See the README there for
-   more info.
-2. The frontend code lives in the `/frontend` folder. `/frontend/index.html` is a great
-   place to start exploring. Note that it loads in `/frontend/assets/src/js/index.js`, where you
-   can learn how the frontend connects to the NEAR blockchain.
-3. Tests: there are different kinds of tests for the frontend and the smart
-   contract. See `contract/README` for info about how it's tested. The frontend
-   code gets tested with [jest]. You can run both of these at once with `yarn
-   run test`.
 
 
 Deploy
@@ -73,7 +53,7 @@ Modify the line in `src/config.js` that sets the account name of the contract. S
     const CONTRACT_NAME = process.env.CONTRACT_NAME || 'near-blank-project.YOUR-NAME.testnet'
 
 
-Step 3: deploy!
+Step 3: deploy
 ---------------
 
 One command:
@@ -88,9 +68,6 @@ As you can see in `package.json`, this does two things:
 
 Troubleshooting
 ===============
-
-On Windows, if you're seeing an error containing `EPERM` it may be related to spaces in your path. Please see [this issue](https://github.com/zkat/npx/issues/209) for more details.
-
 
   [create-near-app]: https://github.com/near/create-near-app
   [Node.js]: https://nodejs.org/en/download/package-manager/

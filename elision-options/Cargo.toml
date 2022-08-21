@@ -1,5 +1,5 @@
 [package]
-name = "elision_option_nft"
+name = "elision-options"
 version = "0.1.0"
 authors = ["Sam Riddle <sam@near.org>"]
 edition = "2021"

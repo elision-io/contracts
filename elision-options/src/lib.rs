@@ -4,7 +4,7 @@ use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
-    env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue,
+    env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue
 };
 
 use crate::internal::*;
@@ -13,6 +13,7 @@ pub use crate::mint::*;
 pub use crate::nft_core::*;
 pub use crate::approval::*;
 pub use crate::royalty::*;
+pub use crate::events::*;
 
 mod internal;
 mod approval; 
@@ -21,6 +22,45 @@ mod metadata;
 mod mint; 
 mod nft_core; 
 mod royalty; 
+mod events;
+
+/// This spec can be treated like a version of the standard.
+pub const NFT_METADATA_SPEC: &str = "1.0.1";
+/// This is the name of the NFT standard we're using
+pub const NFT_STANDARD_NAME: &str = "nep171";
+#[derive(BorshSerialize)]
+pub enum State {
+    Inactive,
+    Active,
+    Exercised,
+    Expired
+}
+enum OptionType {
+    Call,
+    Put,
+    Invalid
+}
+#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct ElisionOption {
+    name: String,
+    description: String,
+    option_type: OptionType,
+    option_state: OptionState,
+    owner_id: AccountId,
+    stable_address: AccountId,
+    asset_address: AccountId,
+    settlement_address: AccountId,
+    strike: U128,
+    premium: U128
+}
+
+#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]
+#[serde(crate = "near_sdk::serde")]
+pub struct ExternalContract {
+    register_address: AccountId,
+    contract_name: String
+}
 
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
@@ -39,6 +79,10 @@ pub struct Contract {
 
     //keeps track of the metadata for the contract
     pub metadata: LazyOption<NFTContractMetadata>,
+
+    //keeps track of whitelisted contracts
+    pub whitelist_contracts: LookupMap<AccountId, ExternalContract>
+
 }
 
 /// Helper structure for keys of the persistent collections.
@@ -52,6 +96,7 @@ pub enum StorageKey {
     TokensPerType,
     TokensPerTypeInner { token_type_hash: CryptoHash },
     TokenTypesLocked,
+    ContractAllowed
 }
 
 #[near_bindgen]

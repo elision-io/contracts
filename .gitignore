@@ -9,6 +9,9 @@ node_modules
 #keys
 /neardev
 
+target
+Cargo.lock
+
 # testing
 /coverage
 

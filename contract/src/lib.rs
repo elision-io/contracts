@@ -20,8 +20,8 @@ use near_sdk::collections::LookupMap;
 
 #[derive(BorshStorageKey, BorshSerialize)]
 pub(crate) enum StorageKey {
-    LiquidityPools,
-    ElisionAccounts,
+    LiquidityPool,
+    ElisionAccount,
     TokenList,
     Admin
 }
@@ -37,13 +37,15 @@ pub enum CurrentState {
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
-    owner: AccountId,
+    owener_id: AccountId,
     fee: u32,
-    pools: Vector<LiquidityPool>,
+    pool: LiquidityPool,
+    locked_amount: u128,
     accounts: LookupMap<AccountId, ElisionAccount>,
     tokens: UnorderedSet<AccountId>,
     admins: UnorderedSet<AccountId>,
-    state: CurrentState,
+    settlement_address: AccountId,
+    state: CurrentState
 }
 
 
@@ -51,17 +53,18 @@ pub struct Contract {
 #[near_bindgen]
 impl Contract {
     #[init]
-    pub fn new(owner: ValidAccountId, base_fee: u32) -> Self {
-        Self {
-            owner: owner.as_ref().clone(),
-            state: CurrentState::Active,
-            fee: base_fee,
-            tokens: UnorderedSet::new(StorageKey::Tokenlist),
-            admins: UnorderedSet::new(StorageKey::Admin),
-            pools: Vector::new(StorageKey::LiquidityPools),
-            accounts: LookupMap::new(StorageKey::ElisionAccounts),
-
-        }
+    pub fn new_default_meta(owner_id: AccountId) -> Self {
+        /*
+            FILL THIS IN
+        */
+        todo!(); //remove once code is filled in.
+    }
+    #[init]
+    pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
+        /*
+            FILL THIS IN
+        */
+        todo!(); //remove once code is filled in.
     }
 }
 

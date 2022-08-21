@@ -1,3 +1,9 @@
+use crate::*;
+use near_sdk::{ext_contract, Gas, log, PromiseResult};
+
+const GAS_FOR_RESOLVE_TRANSFER: Gas = Gas(10_000_000_000_000);
+const GAS_FOR_NFT_ON_TRANSFER: Gas = Gas(25_000_000_000_000);
+
 pub trait NonFungibleTokenCore {
     //transfers an NFT to a receiver ID
     fn nft_transfer(
@@ -47,4 +53,71 @@ trait NonFungibleTokenResolver {
         receiver_id: AccountId,
         token_id: TokenId,
     ) -> bool;
+}
+
+#[near_bindgen]
+impl NonFungibleTokenCore for Contract {
+
+    //implementation of the nft_transfer method. This transfers the NFT from the current owner to the receiver. 
+    #[payable]
+    fn nft_transfer(
+        &mut self,
+        receiver_id: AccountId,
+        token_id: TokenId,
+        memo: Option<String>,
+    ) {
+        /*
+            FILL THIS IN
+        */
+    }
+
+    //implementation of the transfer call method. This will transfer the NFT and call a method on the receiver_id contract
+    #[payable]
+    fn nft_transfer_call(
+        &mut self,
+        receiver_id: AccountId,
+        token_id: TokenId,
+        memo: Option<String>,
+        msg: String,
+    ) -> PromiseOrValue<bool> {
+        /*
+            FILL THIS IN
+        */
+        todo!(); //remove once code is filled in.
+    }
+
+    //get the information for a specific token ID
+    fn nft_token(&self, token_id: TokenId) -> Option<JsonToken> {
+        //if there is some token ID in the tokens_by_id collection
+        if let Some(token) = self.tokens_by_id.get(&token_id) {
+            //we'll get the metadata for that token
+            let metadata = self.token_metadata_by_id.get(&token_id).unwrap();
+            //we return the JsonToken (wrapped by Some since we return an option)
+            Some(JsonToken {
+                token_id,
+                owner_id: token.owner_id,
+                metadata,
+            })
+        } else { //if there wasn't a token ID in the tokens_by_id collection, we return None
+            None
+        }
+    }
+}
+
+#[near_bindgen]
+impl NonFungibleTokenResolver for Contract {
+    //resolves the cross contract call when calling nft_on_transfer in the nft_transfer_call method
+    //returns true if the token was successfully transferred to the receiver_id
+    #[private]
+    fn nft_resolve_transfer(
+        &mut self,
+        owner_id: AccountId,
+        receiver_id: AccountId,
+        token_id: TokenId,
+    ) -> bool {
+        /*
+            FILL THIS IN
+        */
+        todo!(); //remove once code is filled in.
+    }
 }

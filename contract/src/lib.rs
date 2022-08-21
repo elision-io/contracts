@@ -1,75 +1,107 @@
-/*
- * Elision options trading protocol that handles issuance, trading, and settlement of options.
- * 
- * Protocol reflects different changes in options premiums dynamically.
- *  - Collaterlization
- *  - Change in option price
- *  - Change in underlying price
- *  - Changer in time of maturity
- *  - volatility (change of change)
- *  - Interest Rates
- * 
- * Options are a way to hedge against volatility, reduce risk, or limit loss from price drops.
- * Learn more at https://elision.x
- * 
- */
-
+use std::collections::HashMap;
 use near_sdk::borsh::{self, BorshDeserialize, BorshSerialize};
-use near_sdk::{env, near_bindgen, setup_alloc, AccountId, Promise};
-use near_sdk::collections::LookupMap;
+use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
+use near_sdk::json_types::{Base64VecU8, U128};
+use near_sdk::serde::{Deserialize, Serialize};
+use near_sdk::{
+    env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue,
+};
 
-#[derive(BorshStorageKey, BorshSerialize)]
-pub(crate) enum StorageKey {
-    LiquidityPool,
-    ElisionAccount,
-    TokenList,
-    Admin
-}
-#[derive(BorshDeserialize, BorshSerialize, Serialize, Deserialize, Eq, PartialEq, Clone)]
-#[serde(crate = "near_sdk::serde")]
-#[cfg_attr(not(target_arch = "wasm32"), derive(Debug))]
-pub enum CurrentState {
-    Active,
-    Paused
-}
+use crate::internal::*;
+pub use crate::metadata::*;
+pub use crate::mint::*;
+pub use crate::nft_core::*;
+pub use crate::approval::*;
+pub use crate::royalty::*;
 
-// Define the contract structure
+mod internal;
+mod approval; 
+mod enumeration; 
+mod metadata; 
+mod mint; 
+mod nft_core; 
+mod royalty; 
+
 #[near_bindgen]
 #[derive(BorshDeserialize, BorshSerialize, PanicOnDefault)]
 pub struct Contract {
-    owener_id: AccountId,
-    fee: u32,
-    pool: LiquidityPool,
-    locked_amount: u128,
-    accounts: LookupMap<AccountId, ElisionAccount>,
-    tokens: UnorderedSet<AccountId>,
-    admins: UnorderedSet<AccountId>,
-    settlement_address: AccountId,
-    state: CurrentState
+    //contract owner
+    pub owner_id: AccountId,
+
+    //keeps track of all the token IDs for a given account
+    pub tokens_per_owner: LookupMap<AccountId, UnorderedSet<TokenId>>,
+
+    //keeps track of the token struct for a given token ID
+    pub tokens_by_id: LookupMap<TokenId, Token>,
+
+    //keeps track of the token metadata for a given token ID
+    pub token_metadata_by_id: UnorderedMap<TokenId, TokenMetadata>,
+
+    //keeps track of the metadata for the contract
+    pub metadata: LazyOption<NFTContractMetadata>,
 }
 
+/// Helper structure for keys of the persistent collections.
+#[derive(BorshSerialize)]
+pub enum StorageKey {
+    TokensPerOwner,
+    TokenPerOwnerInner { account_id_hash: CryptoHash },
+    TokensById,
+    TokenMetadataById,
+    NFTContractMetadata,
+    TokensPerType,
+    TokensPerTypeInner { token_type_hash: CryptoHash },
+    TokenTypesLocked,
+}
 
-// Implement the contract structure
 #[near_bindgen]
 impl Contract {
+    /*
+        initialization function (can only be called once).
+        this initializes the contract with default metadata so the
+        user doesn't have to manually type metadata.
+    */
     #[init]
     pub fn new_default_meta(owner_id: AccountId) -> Self {
-        /*
-            FILL THIS IN
-        */
-        todo!(); //remove once code is filled in.
+        //calls the other function "new: with some default metadata and the owner_id passed in 
+        Self::new(
+            owner_id,
+            NFTContractMetadata {
+                spec: "nft-1.0.0".to_string(),
+                name: "NFT Tutorial Contract".to_string(),
+                symbol: "GOTEAM".to_string(),
+                icon: None,
+                base_uri: None,
+                reference: None,
+                reference_hash: None,
+            },
+        )
     }
+
+    /*
+        initialization function (can only be called once).
+        this initializes the contract with metadata that was passed in and
+        the owner_id. 
+    */
     #[init]
     pub fn new(owner_id: AccountId, metadata: NFTContractMetadata) -> Self {
-        /*
-            FILL THIS IN
-        */
-        todo!(); //remove once code is filled in.
-    }
-}
+        //create a variable of type Self with all the fields initialized. 
+        let this = Self {
+            //Storage keys are simply the prefixes used for the collections. This helps avoid data collision
+            tokens_per_owner: LookupMap::new(StorageKey::TokensPerOwner.try_to_vec().unwrap()),
+            tokens_by_id: LookupMap::new(StorageKey::TokensById.try_to_vec().unwrap()),
+            token_metadata_by_id: UnorderedMap::new(
+                StorageKey::TokenMetadataById.try_to_vec().unwrap(),
+            ),
+            //set the owner_id field equal to the passed in owner_id. 
+            owner_id,
+            metadata: LazyOption::new(
+                StorageKey::NFTContractMetadata.try_to_vec().unwrap(),
+                Some(&metadata),
+            ),
+        };
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    /// TODO: Write tests
+        //return the Contract object
+        this
+    }
 }

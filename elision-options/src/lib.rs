@@ -28,18 +28,23 @@ mod events;
 pub const NFT_METADATA_SPEC: &str = "1.0.1";
 /// This is the name of the NFT standard we're using
 pub const NFT_STANDARD_NAME: &str = "nep171";
+
 #[derive(BorshSerialize)]
-pub enum State {
+pub enum OptionState {
     Inactive,
     Active,
     Exercised,
     Expired
 }
-enum OptionType {
+
+#[derive(BorshSerialize)]
+pub enum OptionType {
     Call,
     Put,
     Invalid
 }
+
+
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize, Clone)]
 #[serde(crate = "near_sdk::serde")]
 pub struct ElisionOption {
@@ -48,11 +53,13 @@ pub struct ElisionOption {
     option_type: OptionType,
     option_state: OptionState,
     owner_id: AccountId,
+    pool_address: AccountId,
     stable_address: AccountId,
     asset_address: AccountId,
     settlement_address: AccountId,
     strike: U128,
-    premium: U128
+    premium: U128,
+    amount: U128,
 }
 
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]

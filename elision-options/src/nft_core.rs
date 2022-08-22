@@ -10,7 +10,6 @@ pub trait NonFungibleTokenCore {
         &mut self,
         receiver_id: AccountId,
         token_id: TokenId,
-        //we introduce an approval ID so that people with that approval ID can transfer the token
         approval_id: Option<u64>,
         memo: Option<String>,
     );
@@ -21,7 +20,6 @@ pub trait NonFungibleTokenCore {
         &mut self,
         receiver_id: AccountId,
         token_id: TokenId,
-        //we introduce an approval ID so that people with that approval ID can transfer the token
         approval_id: Option<u64>,
         memo: Option<String>,
         msg: String,

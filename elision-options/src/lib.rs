@@ -4,7 +4,7 @@ use near_sdk::collections::{LazyOption, LookupMap, UnorderedMap, UnorderedSet};
 use near_sdk::json_types::{Base64VecU8, U128};
 use near_sdk::serde::{Deserialize, Serialize};
 use near_sdk::{
-    env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue
+    env, near_bindgen, AccountId, Balance, CryptoHash, PanicOnDefault, Promise, PromiseOrValue, Timestamp
 };
 
 use crate::internal::*;
@@ -44,22 +44,89 @@ pub enum OptionType {
     Invalid
 }
 
+#[derive(BorshSerialize)]
+pub enum PositionState {
+    Invalid,
+    Open,
+    Closed
+}
+
 
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize, Clone)]
 #[serde(crate = "near_sdk::serde")]
 pub struct ElisionOption {
+    // Name of option containing basic info
     name: String,
+
+    // Contains more verbose contract information
     description: String,
+
+    // Call or Put
     option_type: OptionType,
+
+    // Status of the option contract
     option_state: OptionState,
-    owner_id: AccountId,
+
+    // Account address that's holding the contract, usually the buyer
+    owner: AccountId,
+
+    // Account address of the liquidity pool that sold and backs the underlying assets
     pool_address: AccountId,
+
+    // Stable token address
     stable_address: AccountId,
+
+    // Underlying assets token address
     asset_address: AccountId,
+
+    // Account of the recipient of the 1% settlement fee
     settlement_address: AccountId,
+
+    // Price that asset can be bought / sold at within option duration
     strike: U128,
+
+    // Fee paid by the buyer for to buy / sell asset at a specified price
     premium: U128,
-    amount: U128,
+
+    // Size of the options contract e.g. 100 NEAR
+    amount: Balance,
+
+    // When the option was created
+    creation: Timestamp,
+    
+    // When the option will expire
+    expiration: Timestamp
+}
+
+#[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize, Clone)]
+#[serde(crate = "near_sdk::serde")]
+pub struct LiquidityPosition {
+    // Owner account of liquidity position
+    owner: AccountId,
+
+    // Current state of position: Invalid, Open, Closed
+    state: PositionState,
+
+    // Liquidity provider's share in the pool
+    share: U128,
+
+    // Size of the liquidity position
+    amount: Balance,
+
+    // When the position was create
+    creation: Timestamp
+}
+
+impl Default for LiquidityPosition {
+    fn default() -> Self {
+        Self {
+            owner: env::current_account_id(),
+            state: PositionState::Open,
+            share: 0,
+            amount: 0,
+            creation: env::block_timestamp()
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, BorshDeserialize, BorshSerialize)]

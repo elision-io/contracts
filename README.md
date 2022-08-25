@@ -10,6 +10,10 @@ The `peer-to-pool` model enables the liquidity pool to assume the counterparty r
 * Aggregate and allocate premiums to the liquidity pool providers
 * Settle option contracts on-chain
 
+Users deposit an underlying asset into a liquidity pool and issue options contracts backed by the provded assets. This allows the users to collectively act as a seller of the options contract without owning a large amount of capital. Think of the option contract as being fractionally owned by the liquidity providers of the underlying asset.
+
+Buyer of the option contracts send the required price and premium in order to mint a new option contract. The pool receives the necessary amount from the buyer and then sends a newly minted [Non-Fungible Token](https://github.com/near/NEPs/blob/master/neps/nep-0171.md). The token will have an expiration published in its [metadata](https://github.com/near/NEPs/blob/master/neps/nep-0177.md). Other core functionality will be built into the token functionality e.g. exercising the token for the asset.
+
 ## Derivative Calculations
 
 ### **Black-Scholes Pricing Model (BSM)**

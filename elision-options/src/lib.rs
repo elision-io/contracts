@@ -24,9 +24,9 @@ mod nft_core;
 mod royalty; 
 mod events;
 
-/// This spec can be treated like a version of the standard.
-pub const NFT_METADATA_SPEC: &str = "1.0.1";
-/// This is the name of the NFT standard we're using
+// This spec can be treated like a version of the standard.
+pub const NFT_METADATA_SPEC: &str = "1.0.0";
+// This is the name of the NFT standard we're using
 pub const NFT_STANDARD_NAME: &str = "nep171";
 
 #[derive(BorshSerialize)]
@@ -159,7 +159,7 @@ pub struct Contract {
 
 }
 
-/// Helper structure for keys of the persistent collections.
+// Helper structure for keys of the persistent collections.
 #[derive(BorshSerialize)]
 pub enum StorageKey {
     TokensPerOwner,
@@ -187,8 +187,8 @@ impl Contract {
             owner_id,
             NFTContractMetadata {
                 spec: "nft-1.0.0".to_string(),
-                name: "NFT Tutorial Contract".to_string(),
-                symbol: "GOTEAM".to_string(),
+                name: "Elision Option Token".to_string(),
+                symbol: "OELX".to_string(),
                 icon: None,
                 base_uri: None,
                 reference: None,
